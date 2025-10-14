@@ -28,8 +28,8 @@
             
             {{-- Konten Utama berada dalam container yang berpusat dan dibatasi lebarnya --}}
             {{-- Ditambahkan flex-grow agar bagian ini membesar dan mendorong Footer ke bawah --}}
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex-grow">
-                <main class="py-10"> 
+            <div class="max-w-7xl mx-auto  flex-grow">
+                <main class=""> 
                     @yield('content')
                 </main>
             </div>
