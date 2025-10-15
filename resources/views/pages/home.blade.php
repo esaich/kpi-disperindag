@@ -97,7 +97,7 @@
                     Keseimbangan skor rata-rata bidang pada semua indikator.
                 </p>
                 <div class="w-full">
-                    <canvas id="radarChart" class="w-full h-[350px]"></canvas>
+                    <canvas id="radarChart" class="w-full h-[450px]"></canvas>
                 </div>
             </div>
 
@@ -183,7 +183,6 @@
 </div>
 @endsection
 
-{{-- ================== SCRIPTS (Disinkronkan dengan Controller) ================== --}}
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -196,12 +195,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const BAR_DATA_FINAL = {!! isset($barChartDataFinal) ? $barChartDataFinal : '{}' !!}; 
     
     // Data untuk Radar Chart
-    // RADAR_LABELS = Nama-nama Bidang (Sumbu Radar)
-    const RADAR_LABELS = {!! isset($labels) ? $labels : '[]' !!}; 
+    // RADAR_LABELS diubah menjadi 'let' agar bisa dimodifikasi
+    let RADAR_LABELS = {!! isset($labels) ? $labels : '[]' !!}; 
     // RADAR_SCORES = Rata-rata Skor Bidang (Data Poligon)
     const RADAR_SCORES = {!! isset($data) ? $data : '[]' !!}; 
 
-    // 🔥🔥🔥 BAGIAN DEBUGGING KRITIS 🔥🔥🔥
+    // 🔥 MODIFIKASI: Memecah label panjang menjadi array (multi-baris)
+    RADAR_LABELS = RADAR_LABELS.map(label => {
+        if (label === 'FASILITASI DAN PENGAWASAN USAHA PERDAGANGAN') {
+            return ['FASILITASI DAN', 'PENGAWASAN USAHA PERDAGANGAN']; 
+        }
+        if (label === 'SARANA DISTRIBUSI PERDAGANGAN') {
+             return ['SARANA DISTRIBUSI', 'PERDAGANGAN']; 
+        }
+        if (label === 'UPTD METROLOGI LEGAL') {
+             return ['UPTD', 'METROLOGI LEGAL']; 
+        }
+        if (label === 'UPTD PASAR WILAYAH II') {
+             return ['UPTD PASAR', 'WILAYAH II']; 
+        }
+        if (label === 'UPTD PASAR WILAYAH I') {
+             return ['UPTD PASAR', 'WILAYAH I']; 
+        }
+        // Tambahkan logika umum untuk label yang panjang > 20 karakter jika perlu.
+        // Contoh pemecahan kata secara umum (tidak disarankan untuk label teknis):
+        // if (label.length > 20) {
+        //     const words = label.split(' ');
+        //     const middle = Math.ceil(words.length / 2);
+        //     return [words.slice(0, middle).join(' '), words.slice(middle).join(' ')];
+        // }
+        
+        return label; // Kembalikan label asli jika tidak perlu dipecah
+    });
+    
+    // 🔥🔥🔥 BAGIAN DEBUGGING KRITIS (Dipertahankan) 🔥🔥🔥
     console.log('--- BAR CHART DEBUGGING ---');
     console.log('1. Labels (Indikator 29-37):', BAR_CHART_LABELS);
     console.log('2. Data Skor Semua Bidang (Object Keys):', Object.keys(BAR_DATA_FINAL));
@@ -213,8 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('3. Data Default Ditemukan:', defaultScores.length > 0);
     console.log('4. Skor Default (Array Data):', defaultScores); 
     console.log('--- RADAR CHART DEBUGGING ---');
-    console.log('5. Radar Labels (Nama Bidang):', RADAR_LABELS);
+    console.log('5. Radar Labels (Nama Bidang Asli):', {!! isset($labels) ? $labels : '[]' !!});
     console.log('6. Radar Scores (Rata-rata Bidang):', RADAR_SCORES);
+    console.log('7. Radar Labels (Modifikasi):', RADAR_LABELS); // Tampilkan hasil modifikasi
     console.log('---------------------------');
     // 🔥🔥🔥 AKHIR BAGIAN DEBUGGING KRITIS 🔥🔥🔥
 
@@ -296,16 +324,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ====== RADAR CHART (Sumbu: Bidang) ======
     const radarEl = document.getElementById('radarChart');
+    // Tambahkan pengecekan if (!radarEl.dataset.initialized) jika diperlukan untuk mencegah inisialisasi ganda
     if (radarEl && !radarEl.dataset.initialized) {
         radarEl.dataset.initialized = true;
 
-        // RADAR_LABELS kini berisi Nama Bidang
         const ctxRadar = radarEl.getContext('2d');
 
         new Chart(ctxRadar, {
             type: 'radar',
             data: {
-                labels: RADAR_LABELS, // Menggunakan Nama Bidang
+                labels: RADAR_LABELS, // Menggunakan array yang sudah dimodifikasi (multi-baris)
                 datasets: [{
                     label: 'Rata-rata Skor Total Pegawai', 
                     data: RADAR_SCORES, // Skor Rata-rata Bidang
@@ -322,7 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: { padding: 25 },
+                // Layout padding yang lebih besar untuk memberi ruang label multi-baris
+                layout: { padding: 40 }, 
                 scales: {
                     r: {
                         beginAtZero: true,
@@ -330,7 +359,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         ticks: { stepSize: 20, color: '#6B7280', backdropColor: 'transparent' },
                         grid: { color: 'rgba(32,58,67,0.12)', circular: true },
                         angleLines: { color: 'rgba(32,58,67,0.15)' },
-                        pointLabels: { color: '#203A43', font: { size: 13, weight: 600 }, padding: 8 } 
+                        pointLabels: { 
+                            color: '#203A43', 
+                            font: { 
+                                size: 10, 
+                                weight: 600 
+                            }, 
+                            // Padding kecil di sini, ruang didapat dari layout: { padding: 40 }
+                            padding: 2 
+                        } 
                     }
                 },
                 plugins: {

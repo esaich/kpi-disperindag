@@ -21,7 +21,7 @@
                 
                 {{-- Teks Judul --}}
                 <span class="text-white text-2xl font-extrabold tracking-wider hover:text-[#0096FF]">
-                    KPI Disperindag
+                    KPI DISPERINDAG
                 </span>
             </a>
             

@@ -25,10 +25,12 @@ class PelatihanController extends Controller
             ->orderBy('pegawais.nama')
             ->get();
 
-        // Ambil yang nilai teknis < 60
-        $teknisBelumTerpenuhi = $dataTeknis->filter(function ($item) {
-            return $item->nilai < 60;
-        });
+        $teknisBelumTerpenuhi = $dataTeknis->filter(fn($item) => $item->nilai < 60);
+
+        // Ambil daftar indikator teknis untuk dropdown
+        $indikatorTeknis = DB::table('indikators')
+            ->whereBetween('indikator_id', [1, 28])
+            ->pluck('nama_indikator', 'indikator_id');
 
         // ===============================
         // Data Mansoskul (Indikator 29–37)
@@ -46,16 +48,20 @@ class PelatihanController extends Controller
             ->orderBy('pegawais.nama')
             ->get();
 
-        // Ambil yang nilai mansoskul < 15
-        $mansoskulBelumTerpenuhi = $dataMansoskul->filter(function ($item) {
-            return $item->nilai < 15;
-        });
+        $mansoskulBelumTerpenuhi = $dataMansoskul->filter(fn($item) => $item->nilai < 15);
+
+        // Ambil daftar indikator mansoskul untuk dropdown
+        $indikatorMansoskul = DB::table('indikators')
+            ->whereBetween('indikator_id', [29, 37])
+            ->pluck('nama_indikator', 'indikator_id');
 
         return view('pelatihan.index', [
             'dataTeknis' => $dataTeknis,
             'teknisBelumTerpenuhi' => $teknisBelumTerpenuhi,
+            'indikatorTeknis' => $indikatorTeknis,
             'dataMansoskul' => $dataMansoskul,
             'mansoskulBelumTerpenuhi' => $mansoskulBelumTerpenuhi,
+            'indikatorMansoskul' => $indikatorMansoskul,
         ]);
     }
 }

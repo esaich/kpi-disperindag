@@ -60,7 +60,7 @@
                                         $badgeClass = 'bg-gray-100 text-gray-700';
                                         if ($rataRata >= 85) {
                                             $badgeClass = 'bg-green-100 text-green-800';
-                                        } elseif ($rataRata >= 70) {
+                                        } elseif ($rataRata >= 60) {
                                             $badgeClass = 'bg-blue-100 text-blue-800';
                                         } else {
                                             $badgeClass = 'bg-red-100 text-red-800';

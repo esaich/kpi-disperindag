@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Bidang;
+use App\Models\Pegawai;
 
 class BidangController extends Controller
 {
@@ -12,8 +14,8 @@ class BidangController extends Controller
      */
     public function index(Request $request)
     {
-        // Ambil semua bidang
-        $bidangs = DB::table('bidangs')->orderBy('nama_bidang', 'asc')->get();
+        // 1. Ambil semua bidang menggunakan Model Bidang
+        $bidangs = Bidang::orderBy('nama_bidang', 'asc')->get();
 
         // Jika user memilih salah satu bidang
         $selectedBidangId = $request->query('bidang_id');
@@ -21,21 +23,26 @@ class BidangController extends Controller
         $selectedBidang = null;
 
         if ($selectedBidangId) {
-            // Ambil nama bidang
-            $selectedBidang = DB::table('bidangs')
-                ->where('bidang_id', $selectedBidangId)
-                ->first();
+            // 2. Ambil selectedBidang menggunakan Model Bidang (find() mencari berdasarkan primary key)
+            $selectedBidang = Bidang::find($selectedBidangId);
 
+            // Lanjutkan hanya jika bidang ditemukan
             if ($selectedBidang) {
-                // Ambil pegawai + rata-rata nilainya (hanya indikator 29–37), urutkan tertinggi–terendah
-                $pegawaiNilai = DB::table('pegawais')
+                // 3. Ambil pegawai + rata-rata nilainya (Indikator 29–37)
+                // Menggunakan Model Pegawai sebagai titik awal, dan tetap menggunakan join
+                // untuk melakukan agregasi AVG yang efisien.
+                $pegawaiNilai = Pegawai::where('bidang_id', $selectedBidangId)
+                    // Gabungkan ke tabel nilai (pivot table)
                     ->join('nilais', 'pegawais.pegawai_id', '=', 'nilais.pegawai_id')
                     ->select(
+                        'pegawais.pegawai_id',
                         'pegawais.nama',
+                        // Hitung rata-rata nilai
                         DB::raw('AVG(nilais.nilai) as rata_nilai')
                     )
-                    ->where('pegawais.bidang_id', $selectedBidangId)
-                    // ->whereBetween('nilais.indikator_id', [29, 37]) // batas indikator 29–37
+                    // Filter indikator 29-37 (Mansoskul)
+                    ->whereBetween('nilais.indikator_id', [29, 37])
+                    // Kelompokkan dan urutkan
                     ->groupBy('pegawais.pegawai_id', 'pegawais.nama')
                     ->orderByDesc('rata_nilai')
                     ->get();
