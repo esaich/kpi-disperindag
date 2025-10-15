@@ -35,7 +35,7 @@ class BidangController extends Controller
                         DB::raw('AVG(nilais.nilai) as rata_nilai')
                     )
                     ->where('pegawais.bidang_id', $selectedBidangId)
-                    ->whereBetween('nilais.indikator_id', [29, 37]) // batas indikator 29–37
+                    // ->whereBetween('nilais.indikator_id', [29, 37]) // batas indikator 29–37
                     ->groupBy('pegawais.pegawai_id', 'pegawais.nama')
                     ->orderByDesc('rata_nilai')
                     ->get();
