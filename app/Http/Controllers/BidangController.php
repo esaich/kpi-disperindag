@@ -41,7 +41,7 @@ class BidangController extends Controller
                         DB::raw('AVG(nilais.nilai) as rata_nilai')
                     )
                     // Filter indikator 29-37 (Mansoskul)
-                    ->whereBetween('nilais.indikator_id', [29, 37])
+                    // ->whereBetween('nilais.indikator_id', [29, 37])
                     // Kelompokkan dan urutkan
                     ->groupBy('pegawais.pegawai_id', 'pegawais.nama')
                     ->orderByDesc('rata_nilai')
